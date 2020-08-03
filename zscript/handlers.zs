@@ -127,6 +127,11 @@ class TargetPoint : Actor
 			TNT1 A 0;
 			TNT1 A 0
 			{
+				if( master == null )
+				{
+					return ResolveState("Death");
+				}
+
 				if( !master.bCORPSE )
 				{
 					//master.A_CustomRailgun(0,color1:"",color2:"red",
