@@ -6,7 +6,7 @@ class TargetHandler : EventHandler
 		// If this doesn't do monster things, we can skip it.
 		if( mo.bISMONSTER )
 		{
-			console.printf("Gave "..mo.GetTag().." a Target Computer.");
+			//console.printf("Gave "..mo.GetTag().." a Target Computer.");
 			mo.A_GiveInventory("TargetingComputer");
 		}
 	}
@@ -23,6 +23,7 @@ class TargetingComputer : Inventory
 
 	bool GrabTarget()
 	{
+		//console.printf("Getting a lock...");
 		bool result = false;
 		if( owner.target != null && !(owner.target is "TargetPoint" ) )
 		{
@@ -31,6 +32,7 @@ class TargetingComputer : Inventory
 			let tgt = TargetPoint(owner.target);
 			if(tgt != null)
 			{
+				//console.printf("Lock successful.");
 				tgt.master = owner;
 				tgt.realtarget = realtarget;
 			}
@@ -58,24 +60,25 @@ class TargetingComputer : Inventory
 		//console.printf("Handling targeting for "..owner.GetTag());
 		if( owner.bCORPSE )
 		{
+			//console.printf("User death imminent...");
 			ReleaseTarget();
 			return; // Don't do anything on dead monsters.
 		}
 
-		if( owner.curstate == owner.ResolveState("Missile") )
+		if( owner.InStateSequence( owner.curstate, owner.ResolveState("Missile") ) )
 		{
 			bool result = GrabTarget();
-			console.printf(owner.GetTag().." is shooting!");
+			//console.printf(owner.GetTag().." is shooting!");
 			if(!result)
 			{
 				ReleaseTarget();
 			}
 		}
 
-		if( owner.curstate == owner.ResolveState("Melee") )
+		if( owner.InStateSequence( owner.curstate, owner.ResolveState("Melee") ) )
 		{
 			bool result = GrabTarget();
-			console.printf(owner.GetTag().." is punching!");
+			//console.printf(owner.GetTag().." is punching!");
 			if( !result )
 			{
 				ReleaseTarget();
