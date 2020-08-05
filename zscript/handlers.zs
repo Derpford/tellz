@@ -9,6 +9,18 @@ class TargetHandler : EventHandler
 			//console.printf("Gave "..mo.GetTag().." a Target Computer.");
 			mo.A_GiveInventory("TargetingComputer");
 		}
+
+		// If it's a projectile, we should check if it has a tracer set.
+		if( mo.bMISSILE && mo.tracer != null )
+		{
+			//console.printf("Giving a "..mo.GetTag().." missile computer!" );
+			mo.A_GiveInventory("MissileComputer");
+			if( mo.tracer is "TargetPoint" )
+			{
+				let it = TargetPoint(mo.tracer);
+				mo.tracer = it.realtarget;
+			}
+		}
 	}
 }
 
@@ -75,7 +87,7 @@ class TargetingComputer : Inventory
 			}
 		}
 
-		if( owner.InStateSequence( owner.curstate, owner.ResolveState("Melee") ) )
+		if( owner.InStateSequence( owner.curstate, owner.ResolveState("Melee") ) || owner.bSKULLFLY )
 		{
 			bool result = GrabTarget();
 			//console.printf(owner.GetTag().." is punching!");
@@ -93,6 +105,29 @@ class TargetingComputer : Inventory
 			ReleaseTarget();
 		}
 	}
+}
+
+class MissileComputer : Inventory
+{
+	// Handles drawing the circle around homing missiles.
+	default
+	{
+		Inventory.MaxAmount 1;
+	}
+
+	override void DoEffect()
+	{
+		if( true )
+		{
+			Vector3 npos = owner.pos;
+			npos.z = owner.tracer.pos.z + owner.tracer.height/2;
+			Actor circle = owner.Spawn("TargetCircle2",npos);
+			Actor trace = owner.Spawn("TargetTracer2",npos);
+			trace.A_Face(owner.tracer,max_pitch:180,z_ofs:owner.tracer.height/2);
+			circle.meleerange = owner.Distance2D(owner.tracer);
+		}
+	}
+
 }
 
 class TargetPoint : Actor
