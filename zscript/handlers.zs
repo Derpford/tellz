@@ -11,7 +11,7 @@ class TargetHandler : EventHandler
 		}
 
 		// If it's a projectile, we should check if it has a tracer set.
-		if( mo.bMISSILE && mo.tracer != null )
+		if( ( mo.bMISSILE || mo is "ArchvileFire" ) && mo.tracer != null )
 		{
 			//console.printf("Giving a "..mo.GetTag().." missile computer!" );
 			mo.A_GiveInventory("MissileComputer");
@@ -153,6 +153,7 @@ class TargetPoint : Actor
 				realtarget.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 			}
 		}
+
 		return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 	}
 
