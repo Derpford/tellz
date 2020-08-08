@@ -133,19 +133,25 @@ class MissileComputer : Inventory
 class TargetPoint : Actor
 {
 	Actor realtarget;
+	bool debug;
+
+	property Debug: debug;
 
 	default
 	{
+		TargetPoint.Debug true;
 		+NOGRAVITY;
+		+NOBLOCKMAP;
 		+NOINTERACTION;
-		-SHOOTABLE;
+		+SHOOTABLE;
+		+THRUACTORS;
 		ReactionTime 3;
 	}
 
 
 	override int DamageMobj(Actor inflictor, Actor source, int dmg, name mod, int flags, double angle)
 	{
-		// Since this object is neither shootable nor interactable, it only takes damage if:
+		// Since this object is neither tangible nor interactable, it only takes damage if:
 		// 1. Something has melee-attacked it.
 		// 2. Something has archvile-fire'd it.
 		// 3. Some other effect was supposed to direct-damage the player but was instead applied to the targetpoint.
@@ -174,6 +180,21 @@ class TargetPoint : Actor
 			TNT1 A 0;
 			TNT1 A 0
 			{
+				if( debug )
+				{
+					return ResolveState("Debug");
+				}
+				else
+				{
+					return ResolveState("MainLoop");
+				}
+			}
+		Debug:
+			SKUL A 0 bright;
+		MainLoop:
+			#### A 0;
+			#### A 0
+			{
 				if( master == null )
 				{
 					return ResolveState("Death");
@@ -199,7 +220,7 @@ class TargetPoint : Actor
 					return ResolveState(null);
 				}
 			}
-			TNT1 A 15 A_Countdown();
+			#### A 15 ;//A_Countdown();
 			Loop;
 		Pain:
 		Death:
