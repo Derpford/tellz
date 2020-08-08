@@ -168,9 +168,17 @@ class TargetPoint : Actor
 				realtarget.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 			}
 		}*/
+		BlockThingsIterator it = BlockThingsIterator.create(self,master.meleerange/4);
 
-		A_Explode(dmg); // Automatically has radius equal to its damage. Might change this later.
+		while( it.next() )
+		{
+			if( it.thing is master.species ) { continue; } // No infighting within species.
+			if( it.thing == master ) { continue; } // skip master.
+			double dmgmod = Distance3D(it.thing)/master.meleerange/4;
 
+			it.thing.DamageMobj(inflictor,source,dmg*dmgmod,mod,flags,angle);
+		}
+		A_Die();
 		return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 	}
 
