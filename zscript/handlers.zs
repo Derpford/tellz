@@ -11,7 +11,7 @@ class TargetHandler : EventHandler
 		}
 
 		// If it's a projectile, we should check if it has a tracer set.
-		if( ( mo.bMISSILE || mo is "ArchvileFire" ) && mo.tracer != null )
+		if( ( mo.bMISSILE  ) && mo.tracer != null ) /*|| mo is "ArchvileFire" */
 		{
 			//console.printf("Giving a "..mo.GetTag().." missile computer!" );
 			mo.A_GiveInventory("MissileComputer");
@@ -39,7 +39,7 @@ class TargetingComputer : Inventory
 		bool result = false;
 		if( owner.target != null && !(owner.target is "TargetPoint" ) )
 		{
-			owner.A_KillChildren(filter:"TargetPoint"); // Remove any targetpoints that we might've switched from.
+			owner.A_KillChildren("TargetPointRemover",filter:"TargetPoint"); // Remove any targetpoints that we might've switched from.
 			realtarget = owner.target;
 			[result, owner.target] = realtarget.A_SpawnItemEX("TargetPoint");
 			let tgt = TargetPoint(owner.target);
@@ -48,6 +48,12 @@ class TargetingComputer : Inventory
 				//console.printf("Lock successful.");
 				tgt.master = owner;
 				tgt.realtarget = realtarget;
+			}
+
+			// Handle the archvile fire shenanigans.
+			if( owner.tracer != null )
+			{
+				owner.tracer.tracer = owner.target;
 			}
 		}
 		else
@@ -160,27 +166,26 @@ class TargetPoint : Actor
 		// was *supposed* to be applied on top of the player's position.
 		// So we can transfer it with an AoE centered on the targetpoint.
 
-		// Old behavior preserved for reference.
-		/*if( Distance2D(source)-self.radius <= source.meleerange || mod == "Melee")
+		// First, check if this is a TargetPointRemover thing.
+		if( mod == "TargetPointRemover" )
 		{
-			if( realtarget.Distance2D(source)-realtarget.radius <= source.meleerange )
-			{
-				source.A_Face(realtarget);
-				realtarget.DamageMobj(inflictor,source,dmg,mod,flags,angle);
-			}
-		}*/
-		BlockThingsIterator it = BlockThingsIterator.create(self,master.meleerange/4);
-
-		while( it.next() )
-		{
-			if( it.thing is master.species ) { continue; } // No infighting within species.
-			if( it.thing == master ) { continue; } // skip master.
-			double dmgmod = Distance3D(it.thing)/master.meleerange/4;
-
-			it.thing.DamageMobj(inflictor,source,dmg*dmgmod,mod,flags,angle);
+			return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 		}
-		//A_Die();
-		return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
+		else
+		{
+			BlockThingsIterator it = BlockThingsIterator.create(self,master.meleerange/4);
+			console.printf("Direct damage detected!");
+			while( it.next() )
+			{
+				if( it.thing is master.species ) { continue; } // No infighting within species.
+				if( it.thing == master ) { continue; } // skip master.
+				double dmgmod = Distance3D(it.thing)/master.meleerange/4;
+
+				it.thing.DamageMobj(inflictor,source,dmg*dmgmod,mod,flags,angle);
+			}
+			//A_Die();
+			return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
+		}
 	}
 
 	states
@@ -217,6 +222,10 @@ class TargetPoint : Actor
 					npos.z += master.height/2;
 					Actor trace = master.Spawn("TargetTracer",npos);
 					trace.A_Face(self,max_pitch:180,z_ofs:realtarget.height/2);
+				}
+				else
+				{
+					return ResolveState("Death"); // Master's dead.
 				}
 
 				if( master.InStateSequence(master.curstate,master.ResolveState("See")) )
