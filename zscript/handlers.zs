@@ -102,9 +102,6 @@ class TargetingComputer : Inventory
 			{
 				ReleaseTarget();
 			}
-			bool spawnedParticle; actor it;
-			[spawnedParticle, it] = owner.A_SpawnItemEX("TargetCircle",zofs:owner.height/2);
-			it.meleerange = owner.meleerange;
 		}
 
 		if( owner.curstate == owner.ResolveState("See") )
@@ -216,12 +213,22 @@ class TargetPoint : Actor
 
 				if( !master.bCORPSE )
 				{
-					//master.A_CustomRailgun(0,color1:"",color2:"red",
-					//	flags: RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,aim:1,pufftype:"TargetPuff");
-					Vector3 npos = master.pos;
-					npos.z += master.height/2;
-					Actor trace = master.Spawn("TargetTracer",npos);
-					trace.A_Face(self,max_pitch:180,z_ofs:realtarget.height/2);
+					if( master.InStateSequence(master.curstate,master.ResolveState("missile")) )
+					{
+						//master.A_CustomRailgun(0,color1:"",color2:"red",
+						//	flags: RGF_SILENT|RGF_FULLBRIGHT|RGF_NORANDOMPUFFZ,aim:1,pufftype:"TargetPuff");
+						Vector3 npos = master.pos;
+						npos.z += master.height/2;
+						Actor trace = master.Spawn("TargetTracer",npos);
+						trace.A_Face(self,max_pitch:180,z_ofs:realtarget.height/2);
+					}
+
+					if( master.InStateSequence(master.curstate,master.ResolveState("melee")) )
+					{
+						bool spawnedParticle; actor it;
+						[spawnedParticle, it] = master.A_SpawnItemEX("TargetCircle",zofs:master.height/2);
+						it.meleerange = master.meleerange;
+					}
 				}
 				else
 				{
