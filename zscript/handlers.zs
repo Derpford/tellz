@@ -145,14 +145,25 @@ class TargetPoint : Actor
 
 	override int DamageMobj(Actor inflictor, Actor source, int dmg, name mod, int flags, double angle)
 	{
-		if( Distance2D(source)-self.radius <= source.meleerange || mod == "Melee")
+		// Since this object is neither shootable nor interactable, it only takes damage if:
+		// 1. Something has melee-attacked it.
+		// 2. Something has archvile-fire'd it.
+		// 3. Some other effect was supposed to direct-damage the player but was instead applied to the targetpoint.
+		// Therefore, we can safely assume that any damage which is applied directly to the target point
+		// was *supposed* to be applied on top of the player's position.
+		// So we can transfer it with an AoE centered on the targetpoint.
+
+		// Old behavior preserved for reference.
+		/*if( Distance2D(source)-self.radius <= source.meleerange || mod == "Melee")
 		{
 			if( realtarget.Distance2D(source)-realtarget.radius <= source.meleerange )
 			{
 				source.A_Face(realtarget);
 				realtarget.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 			}
-		}
+		}*/
+
+		A_Explode(dmg); // Automatically has radius equal to its damage. Might change this later.
 
 		return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 	}
