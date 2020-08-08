@@ -39,6 +39,7 @@ class TargetingComputer : Inventory
 		bool result = false;
 		if( owner.target != null && !(owner.target is "TargetPoint" ) )
 		{
+			owner.A_KillChildren(filter:"TargetPoint"); // Remove any targetpoints that we might've switched from.
 			realtarget = owner.target;
 			[result, owner.target] = realtarget.A_SpawnItemEX("TargetPoint");
 			let tgt = TargetPoint(owner.target);
