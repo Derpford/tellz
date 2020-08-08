@@ -171,7 +171,7 @@ class TargetPoint : Actor
 		else
 		{
 			BlockThingsIterator it = BlockThingsIterator.create(self,master.meleerange/4);
-			console.printf("Direct damage detected!");
+			//console.printf("Direct damage detected!");
 			while( it.next() )
 			{
 				if( it.thing is master.species ) { continue; } // No infighting within species.
@@ -201,7 +201,7 @@ class TargetPoint : Actor
 				}
 			}
 		Debug:
-			SKUL A 0 bright;
+			PLS2 A 0 bright;
 		MainLoop:
 			#### A 0;
 			#### A 0
@@ -245,7 +245,7 @@ class TargetPoint : Actor
 					return ResolveState(null);
 				}
 			}
-			#### A 15 ;//A_Countdown();
+			#### AB 7 ;//A_Countdown();
 			Loop;
 		Pain:
 		Death:
