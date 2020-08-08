@@ -178,7 +178,7 @@ class TargetPoint : Actor
 
 			it.thing.DamageMobj(inflictor,source,dmg*dmgmod,mod,flags,angle);
 		}
-		A_Die();
+		//A_Die();
 		return super.DamageMobj(inflictor,source,dmg,mod,flags,angle);
 	}
 
