@@ -33,7 +33,7 @@ class LaserEffect : Actor
 	{
 		LaserEffect.Color "Red";
 		LaserEffect.Size 2.0;
-		LaserEffect.Life 35;
+		LaserEffect.Life 20;
 		radius 64;
 		+NOINTERACTION;
 		+THRUACTORS;
