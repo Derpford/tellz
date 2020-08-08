@@ -218,7 +218,7 @@ class TargetPoint : Actor
 					trace.A_Face(self,max_pitch:180,z_ofs:realtarget.height/2);
 				}
 
-				if( master.curstate == master.ResolveState("See") )
+				if( master.InStateSequence(master.curstate,master.ResolveState("See")) )
 				{
 					// It's time to stop.
 					return ResolveState("Death");
